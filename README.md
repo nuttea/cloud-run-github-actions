@@ -56,7 +56,7 @@ gcloud iam service-accounts add-iam-policy-binding "${GH_ACTIONS_SA}@${CICD_PROJ
 ## Setup Workload Project
 PROJECT_ID=nuttee-lab-02
 
-Add permissionfor Github Actions Service Account
+Add permission for Github Actions Service Account
 
 ```bash
 
