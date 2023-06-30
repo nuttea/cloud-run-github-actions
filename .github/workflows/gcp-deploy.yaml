@@ -74,14 +74,18 @@ jobs:
       id: auth
       uses: 'google-github-actions/auth@v1'
       with:
+        token_format: 'access_token'
         workload_identity_provider: '${{ secrets.WIF_PROVIDER }}' # e.g. - projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider
         service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}' # e.g. - my-service-account@my-project.iam.gserviceaccount.com  
     
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v1'
       with:
-        version: '>= 363.0.0'
-        
+        version: '>= 437.0.0'
+
+    - name: gcloud authentication list
+      run: gcloud auth list    
+      
     - name: Configure Docker
       run: gcloud auth configure-docker --quiet
 
@@ -92,9 +96,6 @@ jobs:
     - name: Push Container
       run: |-
         docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}"
-
-    - name: Deploy Docker image
-      run: gcloud run deploy ${{ secrets.GCP_PROJECT_ID }} --image $IMAGE_NAME --region us-central1 --platform managed --allow-unauthenticated
 
     - name: Deploy to Cloud Run
       id: deploy
