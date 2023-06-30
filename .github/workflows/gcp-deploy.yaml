@@ -48,7 +48,7 @@ name: Build and Deploy to Cloud Run
 on:
   push:
     branches:
-      - $default-branch
+      - main
 
 env:
   PROJECT_ID: nuttee-lab-02 # YOUR_PROJECT_ID # TODO: update Google Cloud project id
