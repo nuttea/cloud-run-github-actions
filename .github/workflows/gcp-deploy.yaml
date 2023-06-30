@@ -84,7 +84,7 @@ jobs:
         version: '>= 437.0.0'
 
     - name: gcloud authentication list
-      run: gcloud auth list    
+      run: gcloud run services list --project nuttee-lab-02  
       
     - name: Configure Docker
       run: gcloud auth configure-docker --quiet
