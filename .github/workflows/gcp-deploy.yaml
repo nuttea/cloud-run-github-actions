@@ -85,6 +85,7 @@ jobs:
       uses: 'google-github-actions/setup-gcloud@v1'
       with:
         version: '>= 437.0.0'
+        install_components: 'beta,alpha,skaffold'
 
     # Authenticate Docker to Google Cloud Artifact Registry
     - name: Docker Auth
