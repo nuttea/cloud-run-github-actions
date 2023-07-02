@@ -41,5 +41,5 @@ profiles:
           - k8s/overlays/prod
     deploy:
       cloudrun:
-        projectid: nuttee-lab-02 # project id for prod
+        projectid: nuttee-lab-01 # project id for prod
         region: asia-southeast1
