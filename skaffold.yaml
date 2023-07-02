@@ -1,0 +1,45 @@
+apiVersion: skaffold/v4beta5
+kind: Config
+metadata:
+  name: cloud-run-github-actions
+build:
+  local: 
+    push: true
+  artifacts:
+  - image: asia-southeast1-docker.pkg.dev/nuttee-lab-02/github-actions/cloud-run-github-actions # image name to be built, format $REGION-docker.pkg.dev/$PROJECT_ID/$RESITORY/$SERVICE
+    docker:
+      dockerfile: Dockerfile
+profiles:
+  - name: dev
+    activation:
+      - command: dev # automaticly use 'dev' profile whenm run 'skaffold dev'
+    manifests:
+      kustomize:
+        paths: 
+          - k8s/overlays/dev
+    deploy:
+      cloudrun: 
+        projectid: nuttee-lab-02 # project id for dev
+        region: asia-southeast1
+    portForward:
+      - resourceType: service
+        resourceName: cloud-run-github-actions
+        localPort: 8080
+  - name: staging
+    manifests:
+      kustomize:
+        paths: 
+          - k8s/overlays/staging
+    deploy:
+      cloudrun:
+        projectid: nuttee-lab-02 # project id for staging
+        region: asia-southeast1
+  - name: prod
+    manifests:
+      kustomize:
+        paths: 
+          - k8s/overlays/prod
+    deploy:
+      cloudrun:
+        projectid: nuttee-lab-02 # project id for prod
+        region: asia-southeast1

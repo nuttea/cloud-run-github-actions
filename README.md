@@ -5,19 +5,51 @@ https://github.com/marketplace/actions/authenticate-to-google-cloud
 
 https://cloud.google.com/blog/products/identity-security/enabling-keyless-authentication-from-github-actions
 
-## Setup CICD Project
+## Environment Variables and gcloud setup
+
+Update gcloud components
 
 ```bash
-CICD_PROJECT_ID=nuttee-lab-tf
-CICD_PROJECT_NUMBER=$(gcloud projects describe $CICD_PROJECT_ID --format="value(projectNumber)")
-WORKLOAD_IDENTITY_POOL_NAME=gh-actions-pool
-WORKLOAD_IDENTITY_PROVIDER_NAME=gh-provider
-GH_ACTIONS_SA=nuttea-gh-actions
-GH_ORG=nuttea
-GH_REPO=cloud-run-github-actions
+gcloud components update
+gcloud components install --quiet \
+    alpha \
+    beta \
+    log-streaming \
+    cloud-run-proxy \
+    skaffold
+
+gcloud auth login
+gcloud auth application-default login
+```
+
+Manual export env vars
+
+```bash
+export CICD_PROJECT_ID=nuttee-lab-tf
+export CICD_PROJECT_NUMBER=$(gcloud projects describe $CICD_PROJECT_ID --format="value(projectNumber)")
+export SERVICE_PROJECT_ID=nuttee-lab-02
+export SERVICE_PROJECT_NUMBER=$(gcloud projects describe $SERVICE_PROJECT_ID --format="value(projectNumber)")
+export WORKLOAD_IDENTITY_POOL_NAME=gh-actions-pool
+export WORKLOAD_IDENTITY_PROVIDER_NAME=gh-provider
+export GH_ACTIONS_SA=nuttea-gh-actions
+export GH_ORG=nuttea
+export GH_REPO=cloud-run-github-actions
 
 gcloud config set project $CICD_PROJECT_ID
 ```
+
+or copy and edit from .env.example
+
+```bash
+cp .env.example .env
+vim .env
+
+source .env
+
+gcloud config set project $CICD_PROJECT_ID
+```
+
+## Setup CICD Project
 
 Create a service account
 
