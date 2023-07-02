@@ -59,7 +59,6 @@ env:
   DESCRIPTION: 'cloud run github actions example'
   REGION: asia-southeast1 # YOUR_SERVICE_REGION # TODO: update Cloud Run service region
   SERVICE_ACCOUNT_EMAIL: cloudrun-sa@nuttee-lab-02.iam.gserviceaccount.com # YOUR_SERVICE_ACCOUNT_FOR_CLOUD_RUN # TODO: update Cloud Run Service Account
-  IMAGE: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
   
 jobs:
   deploy: 
@@ -104,11 +103,11 @@ jobs:
 
     #- name: Build Container
     #  run: |-
-    #    docker build -t "${{ env.IMAGE }}" ./
+    #    docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}" ./
         
     #- name: Push Container
     #  run: |-
-    #    docker push "${{ env.IMAGE }}"
+    #    docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
 
     #- name: Deploy to Cloud Run
     #  id: deploy
@@ -119,7 +118,7 @@ jobs:
     #    project_id: ${{ env.PROJECT_ID }}
     #    flags: '--service-account=${{ env.SERVICE_ACCOUNT_EMAIL }} --cpu=1 --memory=512Mi --max-instances=3 --concurrency=100 --ingress=all --allow-unauthenticated'
     #    # NOTE: If using a pre-built image, update the image name here
-    #    image: ${{ env.IMAGE }}
+    #    image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
     #    # NOTE: You can also set env variables here:
     #    #  env_vars: |
     #    #  NODE_ENV=production
