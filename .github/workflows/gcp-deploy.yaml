@@ -49,6 +49,8 @@ on:
   push:
     branches:
       - main
+      - staging
+      - dev
 
 env:
   PROJECT_ID: nuttee-lab-02 # YOUR_PROJECT_ID # TODO: update Google Cloud project id
@@ -97,10 +99,23 @@ jobs:
         registry: '${{ env.GAR_LOCATION }}-docker.pkg.dev'
 
     # Run skaffold run
-    - name: Skaffold run (build and deploy)
-      id: skaffold
+    - name: Skaffold run (build and deploy) PROD
+      id: skaffold-prod
+      if: contains(github.ref, "main")
       run: |-
         skaffold run -p prod
+    
+    - name: Skaffold run (build and deploy) STAGING
+      id: skaffold-staging
+      if: contains(github.ref, "staging")
+      run: |-
+        skaffold run -p staging
+    
+    - name: Skaffold run (build and deploy) DEV
+      id: skaffold-dev
+      if: contains(github.ref, "dev")
+      run: |-
+        skaffold run -p dev
 
     #- name: Build Container
     #  run: |-
@@ -124,7 +139,3 @@ jobs:
     #    #  env_vars: |
     #    #  NODE_ENV=production
     #    #  TOKEN_EXPIRE=6400
-
-    # If required, use the Cloud Run url output in later steps
-    - name: Show Output
-      run: echo ${{ steps.skaffold.outputs }}

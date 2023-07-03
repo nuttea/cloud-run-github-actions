@@ -13,7 +13,3 @@ spec:
         env:
         - name: TARGET
           value: "World! (DEV)"
-  traffic:
-    - percent: 100
-      latestRevision: true
-    - tag: dev
