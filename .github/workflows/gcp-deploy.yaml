@@ -60,7 +60,6 @@ env:
   PROJECT_ID: nuttee-lab-02 # YOUR_PROJECT_ID # TODO: update Google Cloud project id
   GAR_LOCATION: asia-southeast1 # YOUR_GAR_LOCATION # TODO: update Artifact Registry location
   REPOSITORY: github-actions # YOUR_REPOSITORY_NAME # TODO: update Artifact Registry repository name
-  SHORT_SHA: ${{GITHUB_SHA::7}}
   CICD_PROJECT_ID: nuttee-lab-tf
   # Cloud Run YAML reference https://cloud.google.com/run/docs/reference/yaml/v1
   #SERVICE_NAME: cloud-run-github-actions # YOUR_SERVICE_NAME # TODO: update Cloud Run service name
@@ -106,7 +105,7 @@ jobs:
 
     # Git shart SHA
     - name: Git short SHA
-      run: echo ${GITHUB_SHA::7}-${{ env.SHORT_SHA }}
+      run: echo ${{GITHUB_SHA::7}}
 
     # Run skaffold build
     - name: Skaffold run (build and deploy) PROD
