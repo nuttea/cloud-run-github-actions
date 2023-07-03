@@ -58,8 +58,8 @@ concurrency:
 
 env:
   PROJECT_ID: nuttee-lab-02 # YOUR_PROJECT_ID # TODO: update Google Cloud project id
-  #GAR_LOCATION: asia-southeast1 # YOUR_GAR_LOCATION # TODO: update Artifact Registry location
-  #REPOSITORY: github-actions # YOUR_REPOSITORY_NAME # TODO: update Artifact Registry repository name
+  GAR_LOCATION: asia-southeast1 # YOUR_GAR_LOCATION # TODO: update Artifact Registry location
+  REPOSITORY: github-actions # YOUR_REPOSITORY_NAME # TODO: update Artifact Registry repository name
   # Cloud Run YAML reference https://cloud.google.com/run/docs/reference/yaml/v1
   #SERVICE_NAME: cloud-run-github-actions # YOUR_SERVICE_NAME # TODO: update Cloud Run service name
   #DESCRIPTION: 'cloud run github actions example'
