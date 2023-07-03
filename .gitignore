@@ -3,6 +3,7 @@
 *_local.*
 .vscode/*
 .DS_Store
+output-*.json
 
 # Rest of the file pulled from https://github.com/github/gitignore/blob/main/Node.gitignore
 # Logs
