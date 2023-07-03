@@ -101,19 +101,19 @@ jobs:
     # Run skaffold run
     - name: Skaffold run (build and deploy) PROD
       id: skaffold-prod
-      if: contains(github.ref, "main")
+      if: contains(github.ref, 'main')
       run: |-
         skaffold run -p prod
     
     - name: Skaffold run (build and deploy) STAGING
       id: skaffold-staging
-      if: contains(github.ref, "staging")
+      if: contains(github.ref, 'staging')
       run: |-
         skaffold run -p staging
     
     - name: Skaffold run (build and deploy) DEV
       id: skaffold-dev
-      if: contains(github.ref, "dev")
+      if: contains(github.ref, 'dev')
       run: |-
         skaffold run -p dev
 
