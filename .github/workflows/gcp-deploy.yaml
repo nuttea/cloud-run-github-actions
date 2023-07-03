@@ -53,21 +53,22 @@ on:
       - dev
 
 concurrency:
-  group: ${{ github.head_ref || github.ref_name }} 
+  group: ${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 env:
   PROJECT_ID: nuttee-lab-02 # YOUR_PROJECT_ID # TODO: update Google Cloud project id
   GAR_LOCATION: asia-southeast1 # YOUR_GAR_LOCATION # TODO: update Artifact Registry location
   REPOSITORY: github-actions # YOUR_REPOSITORY_NAME # TODO: update Artifact Registry repository name
+  CICD_PROJECT_ID: nuttee-lab-tf
   # Cloud Run YAML reference https://cloud.google.com/run/docs/reference/yaml/v1
   #SERVICE_NAME: cloud-run-github-actions # YOUR_SERVICE_NAME # TODO: update Cloud Run service name
   #DESCRIPTION: 'cloud run github actions example'
   #REGION: asia-southeast1 # YOUR_SERVICE_REGION # TODO: update Cloud Run service region
   #SERVICE_ACCOUNT_EMAIL: cloudrun-sa@nuttee-lab-02.iam.gserviceaccount.com # YOUR_SERVICE_ACCOUNT_FOR_CLOUD_RUN # TODO: update Cloud Run Service Account
-  
+
 jobs:
-  deploy: 
+  deploy:
     # Add 'id-token' with the intended permissions for workload identity federation
     permissions:
       contents: 'read'
@@ -102,24 +103,54 @@ jobs:
         password: '${{ steps.auth.outputs.access_token }}'
         registry: '${{ env.GAR_LOCATION }}-docker.pkg.dev'
 
+    # Git shart SHA
+    - name: Git short SHA
+      id: short-sha
+      run: |-
+        calculatedSha=$(git rev-parse --short ${{ github.sha }})
+        echo "short_sha=$calculatedSha" >> $GITHUB_OUTPUT
+
+    # [DEV] Run skaffold build
+    - name: Skaffold build to create artifact, imageName, tag on DEV only
+      id: skaffold-build-dev
+      if: contains(github.ref, 'dev')
+      run: |-
+        skaffold build -p dev --file-output=output-${{ steps.short-sha.outputs.short_sha }}.json
+    
+    # [DEV] Upload skaffold build output to GCS Bucket
+    - name: Upload Skaffold build file output to GCS
+      id: 'upload-skaffold-build-file-output'
+      if: contains(github.ref, 'dev')
+      uses: 'google-github-actions/upload-cloud-storage@v1'
+      with:
+        path: 'output-${{ steps.short-sha.outputs.short_sha }}.json'
+        destination: '${{ env.CICD_PROJECT_ID }}-skaffold/${{ env.REPOSITORY }}'
+
+    # [STAGING,PROD] Download skaffold build output-<commit-hash> from GCS Bucket
+    - name: Download Skaffold build file output from GCS
+      id: 'download-skaffold-build-file-output'
+      if: contains(github.ref, 'main') || contains(github.ref, 'staging')
+      run: |-
+        gsutil cp gs://${{ env.CICD_PROJECT_ID }}-skaffold/${{ env.REPOSITORY }}/output-${{ steps.short-sha.outputs.short_sha }}.json .
+
     # Run skaffold run
     - name: Skaffold run (build and deploy) PROD
       id: skaffold-prod
       if: contains(github.ref, 'main')
       run: |-
-        skaffold run -p prod
+        skaffold deploy -p prod --build-artifacts=output-${{ steps.short-sha.outputs.short_sha }}.json
     
     - name: Skaffold run (build and deploy) STAGING
       id: skaffold-staging
       if: contains(github.ref, 'staging')
       run: |-
-        skaffold run -p staging
+        skaffold deploy -p staging --build-artifacts=output-${{ steps.short-sha.outputs.short_sha }}.json
     
     - name: Skaffold run (build and deploy) DEV
       id: skaffold-dev
       if: contains(github.ref, 'dev')
       run: |-
-        skaffold run -p dev
+        skaffold deploy -p dev --build-artifacts=output-${{ steps.short-sha.outputs.short_sha }}.json
 
     #- name: Build Container
     #  run: |-

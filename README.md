@@ -34,6 +34,7 @@ export WORKLOAD_IDENTITY_PROVIDER_NAME=gh-provider
 export GH_ACTIONS_SA=nuttea-gh-actions
 export GH_ORG=nuttea
 export GH_REPO=cloud-run-github-actions
+export CLOUDRUN_SA=cloudrun-sa
 
 gcloud config set project $CICD_PROJECT_ID
 ```
@@ -52,6 +53,12 @@ gcloud config set project $CICD_PROJECT_ID
 ## Setup CICD Project
 
 Create a service account
+
+```bash
+gcloud iam service-accounts create $GH_ACTIONS_SA \
+    --description="Github Actions Service Account" \
+    --project $CICD_PROJECT_ID
+```
 
 Setting up Identity Federation for GitHub Actions
 
@@ -85,11 +92,47 @@ gcloud iam service-accounts add-iam-policy-binding "${GH_ACTIONS_SA}@${CICD_PROJ
   --member="principalSet://iam.googleapis.com/${WORKLOAD_IDENTITY_POOL_ID}/attribute.repository/${GH_ORG}/${GH_REPO}"
 ```
 
+Create a Cloud Storage bucket for storing build aftifacts information (output-<commit-hash>.json, imageName,tag)
+
+```bash
+gcloud storage buckets create gs://${CICD_PROJECT_ID}-skaffold --project ${CICD_PROJECT_ID} --location asia-southeast1
+
+gcloud storage buckets add-iam-policy-binding gs://${CICD_PROJECT_ID}-skaffold --member=serviceAccount:${GH_ACTIONS_SA}@${CICD_PROJECT_ID}.iam.gserviceaccount.com --role=roles/storage.objectCreator
+```
+
 ## Setup Workload Project
-PROJECT_ID=nuttee-lab-02
+
+```bash
+export NONPROD_PROJECT_ID=nuttee-lab-02
+export PROD_PROJECT_ID=nuttee-lab-01
+```
 
 Add permission for Github Actions Service Account
 
 ```bash
+gcloud projects add-iam-policy-binding $NONPROD_PROJECT_ID \
+    --member=serviceAccount:${GH_ACTIONS_SA}@${CICD_PROJECT_ID}.iam.gserviceaccount.com \
+    --role="roles/run.admin"
+gcloud projects add-iam-policy-binding $NONPROD_PROJECT_ID \
+    --member=serviceAccount:${GH_ACTIONS_SA}@${CICD_PROJECT_ID}.iam.gserviceaccount.com \
+    --role="roles/iam.serviceAccountUser"
 
+gcloud projects add-iam-policy-binding $PROD_PROJECT_ID \
+    --member=serviceAccount:${GH_ACTIONS_SA}@${CICD_PROJECT_ID}.iam.gserviceaccount.com \
+    --role="roles/run.admin"
+gcloud projects add-iam-policy-binding $PROD_PROJECT_ID \
+    --member=serviceAccount:${GH_ACTIONS_SA}@${CICD_PROJECT_ID}.iam.gserviceaccount.com \
+    --role="roles/iam.serviceAccountUser"
+```
+
+Create a Service Account for Cloud Run instance on each projects
+
+```bash
+gcloud iam service-accounts create $CLOUDRUN_SA \
+    --description="Cloud Run Service Account Non-prod" \
+    --project $NONPROD_PROJECT_ID
+
+gcloud iam service-accounts create $CLOUDRUN_SA \
+    --description="Cloud Run Service Account Prod" \
+    --project $PROD_PROJECT_ID
 ```
