@@ -108,41 +108,49 @@ jobs:
       id: short-sha
       run: |-
         calculatedSha=$(git rev-parse --short ${{ github.sha }})
-        echo "::set-output name=short_sha::$calculatedSha"
+        echo "short_sha=$calculatedSha" >> $GITHUB_OUTPUT
 
-    # Run skaffold build
-    - name: Skaffold run (build and deploy) PROD
+    # [DEV] Run skaffold build
+    - name: Skaffold build to create artifact, imageName, tag on DEV only
       id: skaffold-build-dev
       if: contains(github.ref, 'dev')
       run: |-
         skaffold build -p dev --file-output=output-${{ steps.short-sha.outputs.short_sha }}.json
     
-    # 
+    # [DEV] Upload skaffold build output to GCS Bucket
     - name: Upload Skaffold build file output to GCS
       id: 'upload-skaffold-build-file-output'
+      if: contains(github.ref, 'dev')
       uses: 'google-github-actions/upload-cloud-storage@v1'
       with:
         path: 'output-${{ steps.short-sha.outputs.short_sha }}.json'
-        destination: '${{ env.CICD_PROJECT_ID }}-skaffold/output-${{ steps.short-sha.outputs.short_sha }}.json'
+        destination: '${{ env.CICD_PROJECT_ID }}-skaffold/${{ env.REPOSITORY }}'
+
+    # [STAGING,PROD] Download skaffold build output-<commit-hash> from GCS Bucket
+    - name: Download Skaffold build file output from GCS
+      id: 'download-skaffold-build-file-output'
+      if: contains(github.ref, 'main') || contains(github.ref, 'staging')
+      run: |-
+        gsutil cp gs://${{ env.CICD_PROJECT_ID }}-skaffold/${{ env.REPOSITORY }}/output-${{ steps.short-sha.outputs.short_sha }}.json .
 
     # Run skaffold run
     - name: Skaffold run (build and deploy) PROD
       id: skaffold-prod
       if: contains(github.ref, 'main')
       run: |-
-        skaffold run -p prod
+        skaffold deploy -p prod --build-artifacts=output-${{ steps.short-sha.outputs.short_sha }}.json
     
     - name: Skaffold run (build and deploy) STAGING
       id: skaffold-staging
       if: contains(github.ref, 'staging')
       run: |-
-        skaffold run -p staging
+        skaffold deploy -p staging --build-artifacts=output-${{ steps.short-sha.outputs.short_sha }}.json
     
     - name: Skaffold run (build and deploy) DEV
       id: skaffold-dev
       if: contains(github.ref, 'dev')
       run: |-
-        skaffold run -p dev
+        skaffold deploy -p dev --build-artifacts=output-${{ steps.short-sha.outputs.short_sha }}.json
 
     #- name: Build Container
     #  run: |-
