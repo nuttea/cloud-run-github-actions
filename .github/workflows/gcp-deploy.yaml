@@ -105,22 +105,25 @@ jobs:
 
     # Git shart SHA
     - name: Git short SHA
-      run: echo ${{GITHUB_SHA::7}}
+      id: short-sha
+      run: |-
+        calculatedSha=$(git rev-parse --short ${{ github.sha }})
+        echo "::set-output name=short_sha::$calculatedSha"
 
     # Run skaffold build
     - name: Skaffold run (build and deploy) PROD
       id: skaffold-build-dev
       if: contains(github.ref, 'dev')
       run: |-
-        skaffold build -p dev --file-output=output-${{SHORT_SHA}}.json
+        skaffold build -p dev --file-output=output-${{ steps.short-sha.outputs.short_sha }}.json
     
     # 
     - name: Upload Skaffold build file output to GCS
       id: 'upload-skaffold-build-file-output'
       uses: 'google-github-actions/upload-cloud-storage@v1'
       with:
-        path: 'output-${{SHORT_SHA}}.json'
-        destination: '${{ env.CICD_PROJECT_ID }}-skaffold/output-${{SHORT_SHA}}.json'
+        path: 'output-${{ steps.short-sha.outputs.short_sha }}.json'
+        destination: '${{ env.CICD_PROJECT_ID }}-skaffold/output-${{ steps.short-sha.outputs.short_sha }}.json'
 
     # Run skaffold run
     - name: Skaffold run (build and deploy) PROD
