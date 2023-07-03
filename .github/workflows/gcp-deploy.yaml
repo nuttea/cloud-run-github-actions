@@ -52,15 +52,19 @@ on:
       - staging
       - dev
 
+concurrency:
+  group: ${{ github.head_ref || github.ref_name }} 
+  cancel-in-progress: true
+
 env:
   PROJECT_ID: nuttee-lab-02 # YOUR_PROJECT_ID # TODO: update Google Cloud project id
-  GAR_LOCATION: asia-southeast1 # YOUR_GAR_LOCATION # TODO: update Artifact Registry location
-  REPOSITORY: github-actions # YOUR_REPOSITORY_NAME # TODO: update Artifact Registry repository name
+  #GAR_LOCATION: asia-southeast1 # YOUR_GAR_LOCATION # TODO: update Artifact Registry location
+  #REPOSITORY: github-actions # YOUR_REPOSITORY_NAME # TODO: update Artifact Registry repository name
   # Cloud Run YAML reference https://cloud.google.com/run/docs/reference/yaml/v1
-  SERVICE_NAME: cloud-run-github-actions # YOUR_SERVICE_NAME # TODO: update Cloud Run service name
-  DESCRIPTION: 'cloud run github actions example'
-  REGION: asia-southeast1 # YOUR_SERVICE_REGION # TODO: update Cloud Run service region
-  SERVICE_ACCOUNT_EMAIL: cloudrun-sa@nuttee-lab-02.iam.gserviceaccount.com # YOUR_SERVICE_ACCOUNT_FOR_CLOUD_RUN # TODO: update Cloud Run Service Account
+  #SERVICE_NAME: cloud-run-github-actions # YOUR_SERVICE_NAME # TODO: update Cloud Run service name
+  #DESCRIPTION: 'cloud run github actions example'
+  #REGION: asia-southeast1 # YOUR_SERVICE_REGION # TODO: update Cloud Run service region
+  #SERVICE_ACCOUNT_EMAIL: cloudrun-sa@nuttee-lab-02.iam.gserviceaccount.com # YOUR_SERVICE_ACCOUNT_FOR_CLOUD_RUN # TODO: update Cloud Run Service Account
   
 jobs:
   deploy: 
