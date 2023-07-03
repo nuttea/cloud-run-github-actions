@@ -85,6 +85,8 @@ WORKLOAD_IDENTITY_POOL_ID=$(gcloud iam workload-identity-pools describe "${WORKL
 WORKLOAD_IDENTITY_PROVIDER_ID=$(gcloud iam workload-identity-pools providers describe "${WORKLOAD_IDENTITY_PROVIDER_NAME}" --workload-identity-pool "${WORKLOAD_IDENTITY_POOL_NAME}"  --project="${CICD_PROJECT_ID}" --location="global" --format="value(name)")
 ```
 
+Add IAM policy binding for Github principal as a workloadIdentityUser role to Google Cloud Service Account
+
 ```bash
 gcloud iam service-accounts add-iam-policy-binding "${GH_ACTIONS_SA}@${CICD_PROJECT_ID}.iam.gserviceaccount.com" \
   --project="${CICD_PROJECT_ID}" \
