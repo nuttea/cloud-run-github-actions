@@ -1,9 +1,14 @@
 # cloud-run-github-actions
-cicd pipeline with github action to deploy cloud run
 
-https://github.com/marketplace/actions/authenticate-to-google-cloud
+CICD pipeline with github action to deploy cloud run.
 
-https://cloud.google.com/blog/products/identity-security/enabling-keyless-authentication-from-github-actions
+GitHub support the use of OIDC tokens into GitHub Actions Workflows, you can authenticate from GitHub Actions to Google Cloud using Workload Identity Federation, removing the need to export a long-lived JSON service account key.
+
+![Github Actions Workload Identity Federation](images/2_GitHub_Actions.max-1100x1100.jpg)
+
+Referennces
+- https://github.com/marketplace/actions/authenticate-to-google-cloud
+- https://cloud.google.com/blog/products/identity-security/enabling-keyless-authentication-from-github-actions
 
 ## Environment Variables and gcloud setup
 
