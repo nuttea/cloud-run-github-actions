@@ -62,11 +62,10 @@ env:
   REPOSITORY: github-actions # YOUR_REPOSITORY_NAME # TODO: update Artifact Registry repository name
   CICD_PROJECT_ID: nuttee-lab-tf
   # Cloud Run YAML reference https://cloud.google.com/run/docs/reference/yaml/v1
-  #SERVICE_NAME: cloud-run-github-actions # YOUR_SERVICE_NAME # TODO: update Cloud Run service name
+  SERVICE_NAME: cloud-run-github-actions # YOUR_SERVICE_NAME # TODO: update Cloud Run service name
   #DESCRIPTION: 'cloud run github actions example'
   #REGION: asia-southeast1 # YOUR_SERVICE_REGION # TODO: update Cloud Run service region
-  #SERVICE_ACCOUNT_EMAIL: cloudrun-sa@nuttee-lab-02.iam.gserviceaccount.com # YOUR_SERVICE_ACCOUNT_FOR_CLOUD_RUN # TODO: update Cloud Run Service Account
-
+  
 jobs:
   deploy:
     # Add 'id-token' with the intended permissions for workload identity federation
@@ -103,7 +102,7 @@ jobs:
         password: '${{ steps.auth.outputs.access_token }}'
         registry: '${{ env.GAR_LOCATION }}-docker.pkg.dev'
 
-    # Git shart SHA
+    # Git short SHA
     #- name: Git short SHA
     #  id: short-sha
     #  run: |-
@@ -133,29 +132,29 @@ jobs:
     #  run: |-
     #    gsutil cp gs://${{ env.CICD_PROJECT_ID }}-skaffold/${{ env.REPOSITORY }}/output-${{ steps.short-sha.outputs.short_sha }}.json .
 
+    - name: Build Container
+      run: |-
+        docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}" ./
+        
+    - name: Push Container
+      run: |-
+        docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
+
     # Run skaffold run
     - name: Skaffold run (build and deploy) PROD
       id: skaffold-prod
       if: contains(github.ref, 'main')
-      run: skaffold run -p prod
+      run: skaffold deploy -p prod --images "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
     
     - name: Skaffold run (build and deploy) STAGING
       id: skaffold-staging
       if: contains(github.ref, 'staging')
-      run: skaffold run -p staging
+      run: skaffold deploy -p staging --images "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
     
     - name: Skaffold run (build and deploy) DEV
       id: skaffold-dev
       if: contains(github.ref, 'dev')
-      run: skaffold run -p dev
-
-    #- name: Build Container
-    #  run: |-
-    #    docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}" ./
-        
-    #- name: Push Container
-    #  run: |-
-    #    docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
+      run: skaffold deploy -p dev --images "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
 
     #- name: Deploy to Cloud Run
     #  id: deploy
