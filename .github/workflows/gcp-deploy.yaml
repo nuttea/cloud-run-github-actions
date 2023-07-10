@@ -134,6 +134,7 @@ jobs:
 
     - name: Build Container
       run: |-
+        cd CICD/DOCKER
         docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}" ./
         
     - name: Push Container
@@ -144,17 +145,26 @@ jobs:
     - name: Skaffold run (build and deploy) PROD
       id: skaffold-prod
       if: contains(github.ref, 'main')
-      run: skaffold deploy -p prod --images "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
+      run: |-
+        cd CICD/SKAFFOLD
+        skaffold deploy -p prod \
+          --images "service-image=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
     
     - name: Skaffold run (build and deploy) STAGING
       id: skaffold-staging
       if: contains(github.ref, 'staging')
-      run: skaffold deploy -p staging --images "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
+      run: |-
+        cd CICD/SKAFFOLD
+        skaffold deploy -p staging \
+          --images "service-image=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
     
     - name: Skaffold run (build and deploy) DEV
       id: skaffold-dev
       if: contains(github.ref, 'dev')
-      run: skaffold deploy -p dev --images "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
+      run: |-
+        cd CICD/SKAFFOLD
+        skaffold deploy -p dev \
+          --images "service-image=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
 
     #- name: Deploy to Cloud Run
     #  id: deploy

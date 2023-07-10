@@ -2,13 +2,6 @@ apiVersion: skaffold/v4beta5
 kind: Config
 metadata:
   name: cloud-run-github-actions
-build:
-  local: 
-    push: true
-  artifacts:
-  - image: asia-southeast1-docker.pkg.dev/nuttee-lab-02/github-actions/cloud-run-github-actions # image name to be built, format $REGION-docker.pkg.dev/$PROJECT_ID/$RESITORY/$SERVICE
-    docker:
-      dockerfile: Dockerfile
 profiles:
   - name: dev
     activation:
