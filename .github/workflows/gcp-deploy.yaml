@@ -146,7 +146,7 @@ jobs:
       id: skaffold-prod
       if: contains(github.ref, 'main')
       run: |-
-        cd CICD/SKAFFOLD \
+        cd CICD/SKAFFOLD
         skaffold deploy -p prod \
           --images "service-image=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
     
@@ -154,7 +154,7 @@ jobs:
       id: skaffold-staging
       if: contains(github.ref, 'staging')
       run: |-
-        cd CICD/SKAFFOLD \
+        cd CICD/SKAFFOLD
         skaffold deploy -p staging \
           --images "service-image=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
     
@@ -162,7 +162,7 @@ jobs:
       id: skaffold-dev
       if: contains(github.ref, 'dev')
       run: |-
-        cd CICD/SKAFFOLD \
+        cd CICD/SKAFFOLD
         skaffold deploy -p dev \
           --images "service-image=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
 
