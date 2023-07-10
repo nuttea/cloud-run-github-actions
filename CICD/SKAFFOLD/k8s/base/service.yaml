@@ -22,7 +22,7 @@ spec:
       timeoutSeconds: 300
       serviceAccountName: "cloudrun-sa@nuttee-lab-02.iam.gserviceaccount.com"
       containers:
-      - image: asia-southeast1-docker.pkg.dev/nuttee-lab-02/github-actions/cloud-run-github-actions # Replace with built image
+      - image: service-image # Replace with built image
         name: cloud-run-github-actions # Replace with your container name
         env:
         - name: TARGET
